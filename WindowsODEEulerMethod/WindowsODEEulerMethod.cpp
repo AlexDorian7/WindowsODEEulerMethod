@@ -16,6 +16,7 @@ ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
+INT_PTR CALLBACK    NewDialog(HWND, UINT, WPARAM, LPARAM);
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -98,12 +99,30 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    hInst = hInstance; // Store instance handle in our global variable
 
    HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+      CW_USEDEFAULT, 0, 800, 600, nullptr, nullptr, hInstance, nullptr);
 
    if (!hWnd)
    {
       return FALSE;
    }
+
+   // Create the base Window
+
+   HWND tabWnd = CreateWindow(WC_TABCONTROL, L"Tabs", WS_CHILD | WS_VISIBLE, 0, 0, 800, 600, hWnd, nullptr, hInstance, nullptr);
+
+   TCITEM tie = { 0 };
+   tie.mask = TCIF_TEXT;
+   TCHAR TabTitle[16];
+   LoadString(hInstance, IDS_EQUATION_TAB_TITLE, TabTitle, 16);
+   tie.pszText = TabTitle;
+   TabCtrl_InsertItem(tabWnd, 0, &tie);
+   LoadString(hInstance, IDS_TABLE_TAB_TITLE, TabTitle, 16);
+   tie.pszText = TabTitle;
+   TabCtrl_InsertItem(tabWnd, 1, &tie);
+   LoadString(hInstance, IDS_GRAPH_TAB_TITLE, TabTitle, 16);
+   tie.pszText = TabTitle;
+   TabCtrl_InsertItem(tabWnd, 2, &tie);
+   
 
    ShowWindow(hWnd, nCmdShow);
    UpdateWindow(hWnd);
@@ -136,6 +155,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 break;
             case IDM_EXIT:
                 DestroyWindow(hWnd);
+                break;
+            case ID_FILE_NEW:
+                DialogBox(hInst, MAKEINTRESOURCE(IDD_NEW), hWnd, NewDialog);
+                break;
+            case ID_FILE_SAVE:
+                break;
+            case ID_FILE_LOAD:
                 break;
             default:
                 return DefWindowProc(hWnd, message, wParam, lParam);
@@ -177,4 +203,33 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     }
     return (INT_PTR)FALSE;
+}
+
+// Message handler for new box.
+INT_PTR CALLBACK NewDialog(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    switch (message)
+    {
+    case WM_INITDIALOG:
+        // Initialize the "Edit" control with default text
+        SetDlgItemText(hDlg, ID_NEW_NAME_BOX, L"My ODE");
+        return TRUE;
+
+    case WM_COMMAND:
+        if (LOWORD(wParam) == IDCANCEL)
+        {
+            EndDialog(hDlg, LOWORD(wParam));
+            return TRUE;
+        }
+        else if (LOWORD(wParam) == IDOK)
+        {
+            // Retrieve user input from the "Edit" control
+            WCHAR buffer[256];
+            GetDlgItemText(hDlg, ID_NEW_NAME_BOX, buffer, sizeof(buffer)/sizeof(buffer[0]));
+            MessageBox(hDlg, buffer, L"User Input", MB_OK);
+            return TRUE;
+        }
+        break;
+    }
+    return FALSE;
 }

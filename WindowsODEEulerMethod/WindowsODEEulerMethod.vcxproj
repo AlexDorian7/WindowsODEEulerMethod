@@ -128,11 +128,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="framework.h" />
+    <ClInclude Include="ODE.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="WindowsODEEulerMethod.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ODE.cpp" />
     <ClCompile Include="WindowsODEEulerMethod.cpp" />
   </ItemGroup>
   <ItemGroup>
