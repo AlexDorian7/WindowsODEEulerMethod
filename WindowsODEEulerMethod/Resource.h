@@ -18,6 +18,7 @@
 #define IDD_NEW                         129
 #define IDD_TEST                        131
 #define IDC_EDIT1                       1000
+#define IDC_BUTTON1                     1007
 #define ID_NEW_NAME_BOX                 32767
 #define ID_FILE_NEW                     32771
 #define ID_FILE_LOAD                    32772
@@ -34,7 +35,7 @@
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        132
 #define _APS_NEXT_COMMAND_VALUE         32777
-#define _APS_NEXT_CONTROL_VALUE         1003
+#define _APS_NEXT_CONTROL_VALUE         1008
 #define _APS_NEXT_SYMED_VALUE           110
 #endif
 #endif

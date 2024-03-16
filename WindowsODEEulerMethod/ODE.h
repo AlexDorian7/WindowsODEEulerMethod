@@ -3,18 +3,30 @@
 #ifndef _ODE_H_
 #define _ODE_H_
 
-#include <Windows.h>
+#include "framework.h"
+#include "resource.h"
 
 class ODE
 {
 private:
-	HWND ODEWnd;
-	HWND TableWnd;
-	HWND GraphWnd;
-	WCHAR name[256];
+	HINSTANCE hInstance;
+	HWND _TabWnd;
+	HWND _ODEWnd;
+	HWND _TableWnd;
+	HWND _GraphWnd;
+	HWND _Parent;
+	WCHAR _name[256];
+	WCHAR *_ODEStr;
+
+
+	void createWindows(HWND);
 
 public:
-	ODE(WCHAR[256]);
+	static void registerWindows(HINSTANCE);
+	ODE(WCHAR[256], HINSTANCE, HWND);
+	~ODE();
+	void setTab(int);
+
 };
 
 #endif

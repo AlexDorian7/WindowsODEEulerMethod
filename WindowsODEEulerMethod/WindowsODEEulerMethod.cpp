@@ -11,6 +11,9 @@ HINSTANCE hInst;                                // current instance
 WCHAR szTitle[MAX_LOADSTRING];                  // The title bar text
 WCHAR szWindowClass[MAX_LOADSTRING];            // the main window class name
 
+ODE* loadedODE;
+HWND hWnd;
+
 // Forward declarations of functions included in this code module:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
@@ -32,6 +35,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
     LoadStringW(hInstance, IDC_WINDOWSODEEULERMETHOD, szWindowClass, MAX_LOADSTRING);
     MyRegisterClass(hInstance);
+    ODE::registerWindows(hInstance);
 
     // Perform application initialization:
     if (!InitInstance (hInstance, nCmdShow))
@@ -98,7 +102,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
    hInst = hInstance; // Store instance handle in our global variable
 
-   HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
+   hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
       CW_USEDEFAULT, 0, 800, 600, nullptr, nullptr, hInstance, nullptr);
 
    if (!hWnd)
@@ -108,7 +112,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
    // Create the base Window
 
-   HWND tabWnd = CreateWindow(WC_TABCONTROL, L"Tabs", WS_CHILD | WS_VISIBLE, 0, 0, 800, 600, hWnd, nullptr, hInstance, nullptr);
+/*   tabWnd = CreateWindow(WC_TABCONTROL, L"Tabs", WS_CHILD | WS_VISIBLE, 0, 0, 800, 600, hWnd, nullptr, hInstance, nullptr);
 
    TCITEM tie = { 0 };
    tie.mask = TCIF_TEXT;
@@ -121,7 +125,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    TabCtrl_InsertItem(tabWnd, 1, &tie);
    LoadString(hInstance, IDS_GRAPH_TAB_TITLE, TabTitle, 16);
    tie.pszText = TabTitle;
-   TabCtrl_InsertItem(tabWnd, 2, &tie);
+   TabCtrl_InsertItem(tabWnd, 2, &tie);*/
    
 
    ShowWindow(hWnd, nCmdShow);
@@ -179,6 +183,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_DESTROY:
         PostQuitMessage(0);
         break;
+    case WM_NOTIFY:
+    {
+        LPNMHDR lpnmhdr = (LPNMHDR)lParam;
+        if (lpnmhdr->code == TCN_SELCHANGE)
+        {
+            int selectedTabIndex = TabCtrl_GetCurSel(lpnmhdr->hwndFrom);
+            if (loadedODE)
+                loadedODE->setTab(selectedTabIndex);
+        }
+        break;
+    }
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);
     }
@@ -226,7 +241,12 @@ INT_PTR CALLBACK NewDialog(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam
             // Retrieve user input from the "Edit" control
             WCHAR buffer[256];
             GetDlgItemText(hDlg, ID_NEW_NAME_BOX, buffer, sizeof(buffer)/sizeof(buffer[0]));
-            MessageBox(hDlg, buffer, L"User Input", MB_OK);
+            if (loadedODE)
+            {
+                delete loadedODE;
+            }
+            loadedODE = new ODE(buffer, hInst, hWnd);
+            EndDialog(hDlg, LOWORD(wParam));
             return TRUE;
         }
         break;
